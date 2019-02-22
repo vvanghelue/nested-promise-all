@@ -80,3 +80,27 @@ it('execution must by parallel', async () => {
   await nestedPromiseAll(coolObject)
   expect(new Date().getTime() - time < 300).toBe(true)
 })
+
+it('nested nestedPromiseAll', async () => {
+  const result = await nestedPromiseAll({
+  	hello : await nestedPromiseAll({
+  		foo: new Promise(r => setTimeout(() => r('foo-result'), 200)),
+  		bar: {
+  			doh: new Promise(r => setTimeout(() => r('doh-result'), 200))
+  		}
+  	}),
+  	world : new Promise(r => setTimeout(() => r('world-result'), 200))
+  })
+
+  const expectedResult = {
+  	hello : {
+  		foo: 'foo-result',
+  		bar: {
+  			doh: 'doh-result'
+  		}
+  	},
+  	world : 'world-result'
+  }
+
+  expect(result).toEqual(expectedResult)
+})
